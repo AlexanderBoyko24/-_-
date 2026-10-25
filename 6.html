@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Задание: Синтез белка</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,500;0,7..72,700;1,7..72,500&display=swap" rel="stylesheet">
+<style>
+:root{--w:960px;
+  --bg:#080c1c;
+  --text:#eef1ff;
+  --muted:#98a2c8;
+  --line:rgba(160,176,255,.16);
+  --A:#3ddc97;
+  --T:#ff5d73;
+  --G:#ffc53d;
+  --C:#4aa8ff;
+  --cyan:#4aa8ff;--mint:#3ddc97;--pink:#e48bff;--violet:#a58bff;
+  --serif:'Literata',Georgia,'Times New Roman',serif;
+  --sans:'Golos Text',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{
+  margin:0;min-height:100vh;padding:40px 18px 34px;color:var(--text);
+  font-family:var(--sans);overflow-x:hidden;position:relative;
+  background:
+    radial-gradient(900px 520px at 12% -8%,rgba(74,168,255,.13),transparent 60%),
+    radial-gradient(800px 520px at 100% 105%,rgba(255,93,115,.10),transparent 60%),
+    var(--bg);
+  background-attachment:fixed;
+}
+
+.helix-bg{position:fixed;top:0;bottom:0;width:150px;z-index:0;pointer-events:none;opacity:.55}
+.helix-bg svg{width:100%;height:100%;display:block}
+.helix-left{left:-34px}
+.helix-right{right:-34px;transform:scaleX(-1)}
+
+.page{width:min(100%,var(--w,960px));margin:auto;position:relative;z-index:2}
+
+.head{text-align:center;margin-bottom:26px}
+.kicker{display:inline-flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;font-weight:500;margin-bottom:14px}
+.kicker .bases{display:inline-flex;gap:3px}
+.kicker .bases i{width:7px;height:14px;border-radius:2px;display:block}
+.kicker .bases i:nth-child(1){background:var(--A)}
+.kicker .bases i:nth-child(2){background:var(--T)}
+.kicker .bases i:nth-child(3){background:var(--G)}
+.kicker .bases i:nth-child(4){background:var(--C)}
+h1{font-family:var(--serif);font-weight:700;font-size:clamp(30px,5.4vw,50px);line-height:1.1;letter-spacing:-.02em;margin:0}
+.subtitle{max-width:640px;margin:16px auto 20px;color:var(--muted);font-size:15px;line-height:1.7}
+.chips{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:6px 13px;border:1px solid var(--line);border-radius:8px;background:rgba(16,23,52,.7);font-size:12.5px;color:#c9d1f3}
+.chip:before{content:"";width:8px;height:8px;border-radius:2px;background:var(--c,var(--A))}
+.chip:nth-child(1){--c:var(--A)}.chip:nth-child(2){--c:var(--T)}.chip:nth-child(3){--c:var(--C)}
+
+/* карточка задания */
+.task-card{position:relative;overflow:hidden;width:100%;padding:34px 30px 30px;margin-bottom:22px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(160deg,rgba(21,30,66,.92),rgba(11,17,40,.92));box-shadow:0 20px 60px rgba(0,0,0,.35),inset 0 1px rgba(255,255,255,.04)}
+.task-card:before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,var(--A) 0 25%,var(--T) 25% 50%,var(--G) 50% 75%,var(--C) 75%)}
+
+
+/* общие элементы */
+.plate{display:block;max-width:100%;height:auto;margin:0 auto;padding:12px;border-radius:14px;background:#fff;border:1px solid rgba(255,255,255,.25);box-shadow:0 0 0 6px rgba(160,176,255,.08),0 16px 36px rgba(0,0,0,.45)}
+.task-title{display:flex;align-items:center;gap:12px;margin:0 0 20px;font-family:var(--serif);font-size:22px;font-weight:700}
+.task-title:before{content:"";width:6px;height:26px;border-radius:3px;background:var(--tc,var(--C))}
+.rule-box{margin-bottom:22px;padding:16px 18px;border-radius:12px;border:1px solid rgba(74,168,255,.3);background:rgba(74,168,255,.07);color:#d5dcff;font-size:14px;line-height:1.8}
+.rule-box b{font-family:var(--serif);font-size:15px}
+.rule-box small{font-size:12.5px}
+.dna-label{display:flex;align-items:center;gap:9px;margin-bottom:10px;color:var(--muted);font:600 14px var(--sans)}
+.dna-label i{color:var(--C)}
+.dna-seq{margin-bottom:18px;padding:16px 18px;border-radius:12px;border:1px solid var(--line);background:rgba(5,9,26,.55);font:600 18px/1.8 var(--sans);letter-spacing:.06em;word-break:break-all;color:#dfe5ff}
+.dna-seq .nt{display:inline-block;min-width:1ch;text-align:center}
+.nt-A{color:var(--A)}.nt-T{color:var(--T)}.nt-G{color:var(--G)}.nt-C{color:var(--C)}.nt-sep{color:#4c577f}
+.input-group,.rna-input-wrapper{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.input-group label,.rna-input-wrapper label{color:#c9d1f3;font:600 14px var(--sans)}
+input[type="text"]{width:100%;padding:13px 16px;border:1px solid rgba(160,176,255,.28);border-radius:10px;background:rgba(8,12,34,.8);color:var(--text);font:500 15px var(--sans);outline:none;transition:border-color .25s,box-shadow .25s,background .25s}
+input[type="text"]::placeholder{color:#6f7aa6}
+input[type="text"]:focus{border-color:var(--C);box-shadow:0 0 0 3px rgba(74,168,255,.18)}
+input[type="text"].correct{border-color:var(--A);background:rgba(61,220,151,.10);color:#d6ffee}
+input[type="text"].wrong{border-color:var(--T);background:rgba(255,93,115,.10);color:#ffd9de}
+
+.controls{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:28px}
+button{font-family:var(--sans);font-weight:700;font-size:14px;padding:13px 26px;border-radius:11px;cursor:pointer;transition:transform .2s,box-shadow .2s,background .2s;border:none}
+button:focus-visible,.next-page-btn:focus-visible,input:focus-visible,.item-card:focus-visible{outline:2px solid #fff;outline-offset:3px}
+#check{background:linear-gradient(100deg,var(--A),var(--C));color:#080c1c;box-shadow:0 10px 28px rgba(74,168,255,.2)}
+#check:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(74,168,255,.32)}
+#showAnswer{background:transparent;border:1px solid rgba(74,168,255,.6);color:#9cc9ff}
+#showAnswer:hover{background:rgba(74,168,255,.12);transform:translateY(-2px)}
+#reset{background:rgba(160,176,255,.07);border:1px solid rgba(160,176,255,.3);color:#d5dbff}
+#reset:hover{background:rgba(160,176,255,.16);transform:translateY(-2px)}
+#result{text-align:center;margin-top:22px;font:700 16px/1.4 var(--serif);min-height:24px;color:var(--A);transition:color .3s}
+.next-page-btn{display:flex;width:fit-content;max-width:100%;align-items:center;justify-content:center;gap:12px;margin:28px auto 0;padding:15px 26px;border-radius:12px;text-decoration:none;color:#080c1c;background:linear-gradient(100deg,var(--A),var(--C));font-size:14px;font-weight:700;box-shadow:0 10px 30px rgba(74,168,255,.2);transition:transform .2s,box-shadow .2s}
+.next-page-btn:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(74,168,255,.32)}
+
+/* банк карточек и зоны (8, 9) */
+.pool-title{display:flex;align-items:center;gap:9px;margin-bottom:12px;font:700 17px var(--serif)}
+.pool-title i{color:var(--C)}
+.items-pool{display:flex;flex-wrap:wrap;gap:10px;min-height:100px;margin-bottom:28px;padding:18px;border-radius:14px;border:1px dashed rgba(160,176,255,.3);background:rgba(5,9,26,.45)}
+.item-card{max-width:100%;padding:12px 16px;border:1px solid rgba(160,176,255,.28);border-left:4px solid var(--c,var(--C));border-radius:8px;background:rgba(160,176,255,.07);color:#dfe5ff;font:500 14px/1.5 var(--sans);cursor:grab;user-select:none;transition:background .2s,transform .2s,box-shadow .2s,border-color .2s}
+.item-card:hover{background:rgba(160,176,255,.16);transform:translateY(-2px)}
+.item-card.selected{background:rgba(255,197,61,.16);border-color:var(--G);box-shadow:0 0 18px rgba(255,197,61,.28);color:#fff}
+.zones-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+.drop-zone{position:relative;display:flex;flex-direction:column;gap:10px;min-height:200px;padding:20px 18px 18px;border:2px dashed rgba(160,176,255,.3);border-radius:14px;background:rgba(5,9,26,.5);transition:border-color .2s,background .2s,box-shadow .2s}
+.drop-zone.over{border-color:var(--G);background:rgba(255,197,61,.07);box-shadow:inset 0 0 24px rgba(255,197,61,.12)}
+.drop-zone.correct{border-color:var(--A);border-style:solid;background:rgba(61,220,151,.07)}
+.drop-zone.wrong{border-color:var(--T);border-style:solid;background:rgba(255,93,115,.07)}
+.zone-title{margin-bottom:6px;text-align:center;font:700 18px var(--serif);pointer-events:none}
+.zone-image{display:block;width:100%;max-height:170px;object-fit:contain;margin:0 auto 4px;padding:8px;border-radius:12px;background:#fff;pointer-events:none}
+.task-card:nth-of-type(n){--tc:var(--C)}
+.table-img{display:block;max-width:100%;height:auto;margin:0 auto;padding:10px;border-radius:12px;background:#fff;box-shadow:0 0 0 6px rgba(160,176,255,.08),0 16px 36px rgba(0,0,0,.45)}
+
+@media(max-width:820px){.helix-bg{opacity:.3;width:110px}}
+@media(max-width:600px){
+  body{padding:28px 12px}
+  .task-card{padding:22px 12px 20px}
+  .subtitle{font-size:14px}
+  .task-title{font-size:20px}
+  .dna-seq{font-size:15px;padding:12px}
+  .controls button{flex:1 1 100%}
+  .next-page-btn{width:100%;text-align:center}
+}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<div class="helix-bg helix-left" id="helixL" aria-hidden="true"></div>
+<div class="helix-bg helix-right" id="helixR" aria-hidden="true"></div>
+
+<main class="page">
+    <header class="head">
+        <div class="kicker"><span class="bases" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Интерактивная биология</div>
+        <h1>Задачи на синтез белка</h1>
+        <p class="subtitle">Используя таблицу генетического кода (расположена ниже), определите последовательности и-РНК, ДНК и аминокислот.</p>
+        <div class="chips"><span class="chip">2 задачи</span><span class="chip">Таблица генетического кода</span></div>
+    </header>
+
+    <!-- Таблица генетического кода ПЕРЕНЕСЕНА НАВЕРХ -->
+    <div class="task-card" style="padding: 18px;">
+         <img class="table-img" src="images/генкод.png" alt="Таблица генетического кода" onerror="this.onerror=null;this.src='https://placehold.co/700x400/111827/55e6f2?text=Поместите+таблицу+генетического+кода+в+images/genetic_code.png'">
+    </div>
+
+    <!-- ЗАДАЧА 1 -->
+    <div class="task-card">
+        <h2 class="task-title">Задача 1</h2>
+        
+        <div class="rule-box">
+            <i class="fas fa-info-circle" style="color: var(--cyan); margin-right: 8px;"></i>
+            <b>Правило комплементарности (ДНК → и-РНК):</b> А → У, Т → А, Г → Ц, Ц → Г.<br>
+            <small style="color: var(--muted);">Дефисы и пробелы при вводе можно не ставить.</small>
+        </div>
+
+        <div class="dna-label"><i class="fas fa-dna"></i> Фрагмент цепи ДНК</div>
+        <div class="dna-seq">-Г-Г-А-А-Ц-А-Ц-Т-А-Г-Т-Т-А-А-А-А-Т-А-Ц-Г-Т-Т-А-Ц-</div>
+
+        <div class="input-group">
+            <label for="rnaInput1">1. Последовательность и-РНК:</label>
+            <input type="text" id="rnaInput1" placeholder="Например: А-У-Г-Ц-А-Г...">
+        </div>
+
+        <div class="input-group">
+            <label for="proteinInput1">2. Последовательность белка (аминокислоты):</label>
+            <input type="text" id="proteinInput1" placeholder="Например: Мет-Ала-Вал... (или полные названия)">
+        </div>
+    </div>
+
+    <!-- ЗАДАЧА 2 -->
+    <div class="task-card">
+        <h2 class="task-title">Задача 2</h2>
+        
+        <div class="dna-label" style="margin-bottom: 15px;"><i class="fas fa-dna"></i> Белок имеет порядок аминокислот:</div>
+        <div class="dna-seq" style="color: var(--mint);">-гли-тре-ала-сер-арг-</div>
+
+        <div class="input-group">
+            <label for="rnaInput2">1. Последовательность и-РНК:</label>
+            <input type="text" id="rnaInput2" placeholder="Например: Г-Г-У-А-Ц-У...">
+        </div>
+
+        <div class="input-group">
+            <label for="dnaInput2_1">2. 1-я цепь ДНК (транскрибируемая/матричная):</label>
+            <input type="text" id="dnaInput2_1" placeholder="Ц-Ц-А-Т-Г-А...">
+        </div>
+
+        <div class="input-group">
+            <label for="dnaInput2_2">3. 2-я цепь ДНК (смысловая/кодирующая):</label>
+            <input type="text" id="dnaInput2_2" placeholder="Г-Г-Т-А-Ц-Т...">
+        </div>
+    </div>
+
+    <!-- ОБЩИЕ КНОПКИ -->
+    <div class="controls" style="margin-bottom: 30px;">
+        <button id="check">✓ Проверить всё</button>
+        <button id="showAnswer">👁 Показать ответы</button>
+        <button id="reset">↺ Сбросить</button>
+    </div>
+
+    <div id="result" aria-live="polite"></div>
+
+    <a href="7.html" class="next-page-btn">Перейти к следующему заданию <i class="fas fa-arrow-right"></i></a>
+</main>
+
+<script>
+    // --- ПРАВИЛЬНЫЕ ОТВЕТЫ ---
+    
+    // Задача 1
+    const correctRNA1 = "Ц-Ц-У-У-Г-У-Г-А-У-Ц-А-А-У-У-У-У-У-А-У-Г-Ц-А-А-У-Г";
+    const correctProtein1 = "Про-Цис-Асп-Глн-Фен-Тир-Ала-Мет"; 
+    const fullProteinNames1 = "Пролин-Цистеин-Аспарагиновая-Глутамин-Фенилаланин-Тирозин-Аланин-Метионин";
+
+    // Задача 2 (выбран один из возможных вариантов)
+    const correctRNA2 = "Г-Г-У-А-Ц-У-Г-Ц-У-У-Ц-У-Ц-Г-У";
+    const correctDNA2_1 = "Ц-Ц-А-Т-Г-А-Ц-Г-А-А-Г-А-Г-Ц-А";
+    const correctDNA2_2 = "Г-Г-Т-А-Ц-Т-Г-Ц-Т-Т-Ц-Т-Ц-Г-Т";
+
+    // --- DOM ЭЛЕМЕНТЫ ---
+    const checkBtn = document.getElementById('check');
+    const showAnswerBtn = document.getElementById('showAnswer');
+    const resetBtn = document.getElementById('reset');
+    const resultDiv = document.getElementById('result');
+
+    const rnaInput1 = document.getElementById('rnaInput1');
+    const proteinInput1 = document.getElementById('proteinInput1');
+    
+    const rnaInput2 = document.getElementById('rnaInput2');
+    const dnaInput2_1 = document.getElementById('dnaInput2_1');
+    const dnaInput2_2 = document.getElementById('dnaInput2_2');
+
+    // --- ФУНКЦИИ НОРМАЛИЗАЦИИ ---
+    function normalize(str) {
+        return str.toUpperCase().replace(/[\s\-]/g, '').trim();
+    }
+
+    function normalizeProtein(str) {
+        return str.toLowerCase().replace(/[\s\-]/g, '').trim();
+    }
+
+    // --- ПРОВЕРКА ---
+    checkBtn.addEventListener('click', () => {
+        let correctCount = 0;
+        let totalFields = 5;
+        
+        // 1. Проверка и-РНК (Задача 1)
+        if (normalize(rnaInput1.value) === normalize(correctRNA1)) {
+            rnaInput1.classList.add('correct');
+            rnaInput1.classList.remove('wrong');
+            correctCount++;
+        } else {
+            rnaInput1.classList.add('wrong');
+            rnaInput1.classList.remove('correct');
+        }
+
+        // 2. Проверка белка (Задача 1)
+        const userProtein1 = normalizeProtein(proteinInput1.value);
+        const shortAns1 = normalizeProtein(correctProtein1);
+        const fullAns1 = normalizeProtein(fullProteinNames1);
+        
+        if (userProtein1 === shortAns1 || userProtein1 === fullAns1) {
+            proteinInput1.classList.add('correct');
+            proteinInput1.classList.remove('wrong');
+            correctCount++;
+        } else {
+            proteinInput1.classList.add('wrong');
+            proteinInput1.classList.remove('correct');
+        }
+
+        // 3. Проверка и-РНК (Задача 2)
+        if (normalize(rnaInput2.value) === normalize(correctRNA2)) {
+            rnaInput2.classList.add('correct');
+            rnaInput2.classList.remove('wrong');
+            correctCount++;
+        } else {
+            rnaInput2.classList.add('wrong');
+            rnaInput2.classList.remove('correct');
+        }
+
+        // 4. Проверка 1-й цепи ДНК (Задача 2)
+        if (normalize(dnaInput2_1.value) === normalize(correctDNA2_1)) {
+            dnaInput2_1.classList.add('correct');
+            dnaInput2_1.classList.remove('wrong');
+            correctCount++;
+        } else {
+            dnaInput2_1.classList.add('wrong');
+            dnaInput2_1.classList.remove('correct');
+        }
+
+        // 5. Проверка 2-й цепи ДНК (Задача 2)
+        if (normalize(dnaInput2_2.value) === normalize(correctDNA2_2)) {
+            dnaInput2_2.classList.add('correct');
+            dnaInput2_2.classList.remove('wrong');
+            correctCount++;
+        } else {
+            dnaInput2_2.classList.add('wrong');
+            dnaInput2_2.classList.remove('correct');
+        }
+
+        // Вывод результата
+        if (correctCount === totalFields) {
+            resultDiv.textContent = '🎉 Отлично! Обе задачи решены абсолютно верно!';
+            resultDiv.style.color = 'var(--A)';
+        } else {
+            resultDiv.textContent = `Правильно: ${correctCount} из ${totalFields} полей. Проверьте красные поля.`;
+            resultDiv.style.color = 'var(--T)';
+        }
+    });
+
+    // --- ПОКАЗАТЬ ОТВЕТЫ ---
+    showAnswerBtn.addEventListener('click', () => {
+        // Задача 1
+        rnaInput1.value = correctRNA1;
+        proteinInput1.value = correctProtein1;
+        rnaInput1.classList.add('correct');
+        proteinInput1.classList.add('correct');
+        rnaInput1.classList.remove('wrong');
+        proteinInput1.classList.remove('wrong');
+
+        // Задача 2
+        rnaInput2.value = correctRNA2;
+        dnaInput2_1.value = correctDNA2_1;
+        dnaInput2_2.value = correctDNA2_2;
+        rnaInput2.classList.add('correct');
+        dnaInput2_1.classList.add('correct');
+        dnaInput2_2.classList.add('correct');
+        rnaInput2.classList.remove('wrong');
+        dnaInput2_1.classList.remove('wrong');
+        dnaInput2_2.classList.remove('wrong');
+
+        resultDiv.textContent = '👁 Правильные ответы показаны. Изучите их!';
+        resultDiv.style.color = 'var(--C)';
+    });
+
+    // --- СБРОС ---
+    resetBtn.addEventListener('click', () => {
+        // Очистка полей
+        rnaInput1.value = '';
+        proteinInput1.value = '';
+        rnaInput2.value = '';
+        dnaInput2_1.value = '';
+        dnaInput2_2.value = '';
+        
+        // Удаление классов
+        document.querySelectorAll('input[type="text"]').forEach(input => {
+            input.classList.remove('correct', 'wrong');
+        });
+        
+        resultDiv.textContent = '';
+    });
+</script>
+
+<script>
+/* оформление: двойные спирали по краям */
+(function(){
+  const BASES=['A','T','G','C'],COL={A:'#3ddc97',T:'#ff5d73',G:'#ffc53d',C:'#4aa8ff'},PAIR={A:'T',T:'A',G:'C',C:'G'};
+  let s=21;const rnd=()=>((s=(s*1664525+1013904223)>>>0)/4294967296);
+  const W=120,H=1000,cx=60,amp=38,period=260,n=130;
+  let a='',b='',r='';
+  for(let i=0;i<=n;i++){const y=i/n*H,ph=y/period*Math.PI*2;a+=(i?'L':'M')+(cx+amp*Math.sin(ph)).toFixed(1)+' '+y.toFixed(1);b+=(i?'L':'M')+(cx-amp*Math.sin(ph)).toFixed(1)+' '+y.toFixed(1)}
+  for(let y=10;y<H;y+=15){const ph=y/period*Math.PI*2,sn=Math.sin(ph),x1=cx+amp*sn,x2=cx-amp*sn,bs=BASES[Math.floor(rnd()*4)],pb=PAIR[bs],o=(.25+.6*Math.abs(Math.cos(ph))).toFixed(2);
+    r+=`<line x1="${x1.toFixed(1)}" y1="${y}" x2="${cx}" y2="${y}" stroke="${COL[bs]}" stroke-width="3" stroke-linecap="round" opacity="${o}"/><line x1="${cx}" y1="${y}" x2="${x2.toFixed(1)}" y2="${y}" stroke="${COL[pb]}" stroke-width="3" stroke-linecap="round" opacity="${o}"/>`}
+  const svg=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice">${r}<path d="${a}" fill="none" stroke="rgba(214,222,255,.5)" stroke-width="2.2"/><path d="${b}" fill="none" stroke="rgba(214,222,255,.25)" stroke-width="2.2"/></svg>`;
+  document.getElementById('helixL').innerHTML=svg;document.getElementById('helixR').innerHTML=svg;
+})();
+
+/* нуклеотиды в цепях окрашены в цвета A, T, G, C */
+(function(){
+  const map={'А':'A','Т':'T','У':'T','Г':'G','Ц':'C'};
+  document.querySelectorAll('.dna-seq').forEach(el=>{
+    const t=el.textContent.trim();
+    if(!/^[АТГЦУ\-]+$/.test(t)) return;
+    el.setAttribute('aria-label',t);
+    el.innerHTML=[...t].map(ch=>map[ch]?`<span class="nt nt-${map[ch]}">${ch}</span>`:`<span class="nt nt-sep">${ch}</span>`).join('');
+  });
+})();
+</script>
+</body>
+</html>

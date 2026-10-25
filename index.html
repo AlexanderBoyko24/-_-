@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Практическое занятие №1 — Генетика</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #030816;
+            --panel: rgba(13, 29, 49, 0.88);
+            --cyan: #55e6f2;
+            --mint: #65ffd2;
+            --violet: #a58bff;
+            --text: #effaff;
+            --muted: #9ab2c8;
+            --line: rgba(85, 230, 242, 0.24);
+            --pink: #ff78b7;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            padding: 40px 18px;
+            color: var(--text);
+            font-family: 'Manrope', system-ui, sans-serif;
+            overflow-x: hidden;
+            background-color: var(--bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            line-height: 1.6;
+        }
+
+        /* --- ФОНОВЫЕ ЭЛЕМЕНТЫ --- */
+        .bg-grid {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(85, 230, 242, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(85, 230, 242, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px; z-index: -2; pointer-events: none;
+        }
+        .glow-orb {
+            position: fixed; border-radius: 50%; filter: blur(90px); z-index: -1;
+            opacity: 0.35; animation: float 12s infinite alternate ease-in-out; pointer-events: none;
+        }
+        .orb-1 { width: 450px; height: 450px; background: var(--cyan); top: -100px; left: -150px; }
+        .orb-2 { width: 350px; height: 350px; background: var(--violet); bottom: -50px; right: -100px; animation-delay: -5s; }
+        .orb-3 { width: 250px; height: 250px; background: var(--mint); top: 40%; left: 60%; animation-duration: 15s; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(40px, 60px) scale(1.1); }
+        }
+
+        .bg-decor {
+            position: fixed; z-index: -1; pointer-events: none; opacity: 0.1;
+            color: var(--cyan); filter: drop-shadow(0 0 15px var(--cyan));
+        }
+        .decor-dna-top-left { top: -40px; left: -40px; font-size: 280px; transform: rotate(25deg); }
+        .decor-dna-bottom-right { bottom: -40px; right: -40px; font-size: 220px; transform: rotate(-25deg); }
+        .decor-microscope { top: 15%; right: 5%; font-size: 150px; color: var(--violet); filter: drop-shadow(0 0 15px var(--violet)); }
+
+        /* --- ОСНОВНОЙ КОНТЕНТ --- */
+        .page {
+            width: min(100%, 900px); position: relative; z-index: 10;
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        .header-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--mint);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            background: rgba(101, 255, 210, 0.1);
+            padding: 6px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(101, 255, 210, 0.3);
+            display: inline-block;
+        }
+
+        h1 {
+            text-align: center; font-size: clamp(24px, 4vw, 36px); font-weight: 800;
+            letter-spacing: -0.03em; margin: 0 0 15px; color: #f4fdff;
+            text-shadow: 0 0 28px rgba(85, 230, 242, 0.25);
+        }
+        
+        .topic {
+            text-align: center;
+            font-size: 1.1rem;
+            color: var(--cyan);
+            margin-bottom: 40px;
+            font-weight: 600;
+            max-width: 800px;
+        }
+
+        .info-card {
+            background: linear-gradient(145deg, rgba(18, 41, 64, 0.88), rgba(8, 22, 39, 0.88));
+            border: 1px solid rgba(85, 230, 242, 0.18);
+            border-radius: 24px;
+            padding: 35px;
+            width: 100%;
+            box-shadow: 0 18px 55px rgba(0, 0, 0, 0.25), inset 0 1px rgba(255, 255, 255, 0.035);
+            backdrop-filter: blur(10px);
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--mint);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 25px 0;
+        }
+
+        ul li {
+            position: relative;
+            padding-left: 28px;
+            margin-bottom: 12px;
+            font-size: 15px;
+            color: var(--text);
+        }
+
+        ul li::before {
+            content: '\f0da'; /* Иконка стрелочки FontAwesome */
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            top: 2px;
+            color: var(--cyan);
+            font-size: 14px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .equipment-box {
+            background: rgba(85, 230, 242, 0.05);
+            border-left: 4px solid var(--cyan);
+            padding: 15px 20px;
+            border-radius: 0 8px 8px 0;
+            font-size: 15px;
+            margin-top: 10px;
+        }
+
+        .equipment-box i {
+            color: var(--cyan);
+            margin-right: 8px;
+        }
+
+        /* --- КНОПКА "НАЧАТЬ" --- */
+        .start-btn {
+            display: flex;
+            width: fit-content;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            padding: 18px 50px;
+            border-radius: 50px;
+            text-decoration: none;
+            color: #07111f;
+            background: linear-gradient(110deg, var(--cyan), var(--mint));
+            font-size: 18px;
+            font-weight: 800;
+            box-shadow: 0 8px 28px rgba(85, 230, 242, 0.25);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            animation: pulse-btn 2s infinite;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(85, 230, 242, 0.4);
+            animation: none;
+        }
+
+        .start-btn i {
+            font-size: 20px;
+        }
+
+        @keyframes pulse-btn {
+            0% { box-shadow: 0 8px 28px rgba(85, 230, 242, 0.2); }
+            50% { box-shadow: 0 8px 40px rgba(85, 230, 242, 0.5); }
+            100% { box-shadow: 0 8px 28px rgba(85, 230, 242, 0.2); }
+        }
+
+        /* --- АДАПТИВНОСТЬ --- */
+        @media (max-width: 768px) {
+            .grid-2 { grid-template-columns: 1fr; gap: 0; }
+            .info-card { padding: 25px 20px; }
+            .decor-microscope { display: none; }
+        }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 1.6rem; }
+            .topic { font-size: 1rem; }
+            .start-btn { padding: 15px 30px; font-size: 16px; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ФОНОВЫЕ ЭЛЕМЕНТЫ -->
+<div class="bg-grid"></div>
+<div class="glow-orb orb-1"></div>
+<div class="glow-orb orb-2"></div>
+<div class="glow-orb orb-3"></div>
+<i class="fas fa-dna bg-decor decor-dna-top-left"></i>
+<i class="fas fa-dna bg-decor decor-dna-bottom-right"></i>
+<i class="fas fa-microscope bg-decor decor-microscope"></i>
+
+<main class="page">
+    
+    <div class="header-tag">Практическое занятие № 1</div>
+    
+    <h1>Изучение строения клеток <span style="color: var(--cyan);">человека</span></h1>
+    <div class="topic">Тема: Изучение строения клеток человека. Кариотип человека. Клеточный цикл.</div>
+
+    <div class="info-card">
+        
+        <div class="section-title"><i class="fas fa-bullseye"></i> Цель практического занятия:</div>
+        <ul>
+            <li>Изучить строение соматических и половых клеток, функции клеточных компонентов.</li>
+            <li>Изучить клеточный цикл.</li>
+        </ul>
+
+        <div class="grid-2">
+            <!-- ЗНАТЬ -->
+            <div>
+                <div class="section-title"><i class="fas fa-brain"></i> Знать:</div>
+                <ul>
+                    <li>Особенности клеточного цикла.</li>
+                    <li>Строение и функции клеточных органоидов.</li>
+                    <li>Строение и функции половых клеток.</li>
+                    <li>Процесс образования половых клеток.</li>
+                    <li>Понятие кариотип и кариограмма.</li>
+                    <li>Структуру и формы хромосом.</li>
+                    <li>Химическое строение и генетическую роль нуклеиновых кислот.</li>
+                    <li>Генетический код.</li>
+                </ul>
+            </div>
+
+            <!-- УМЕТЬ -->
+            <div>
+                <div class="section-title"><i class="fas fa-tools"></i> Уметь:</div>
+                <ul>
+                    <li>Характеризовать фазы деления клеток.</li>
+                    <li>Характеризовать фазы гаметогенеза.</li>
+                    <li>Характеризовать нуклеиновые кислоты.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section-title" style="margin-top: 10px;"><i class="fas fa-flask"></i> Материалы и оборудование:</div>
+        <div class="equipment-box">
+            <i class="fas fa-check-circle"></i> Микроскоп, готовые препараты, раздаточный материал.
+        </div>
+
+    </div>
+
+    <!-- Кнопка Начать -->
+    <a href="1.html" class="start-btn">
+        Начать <i class="fas fa-arrow-right"></i>
+    </a>
+
+</main>
+
+</body>
+</html> 
