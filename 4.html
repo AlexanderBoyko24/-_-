@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Задание: Определение кариотипа</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,500;0,7..72,700;1,7..72,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080c1c;
+  --text:#eef1ff;
+  --muted:#98a2c8;
+  --line:rgba(160,176,255,.16);
+  --A:#3ddc97;
+  --T:#ff5d73;
+  --G:#ffc53d;
+  --C:#4aa8ff;
+  --serif:'Literata',Georgia,'Times New Roman',serif;
+  --sans:'Golos Text',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{
+  margin:0;min-height:100vh;padding:40px 18px 34px;color:var(--text);
+  font-family:var(--sans);overflow-x:hidden;position:relative;
+  background:
+    radial-gradient(900px 520px at 12% -8%,rgba(74,168,255,.13),transparent 60%),
+    radial-gradient(800px 520px at 100% 105%,rgba(255,93,115,.10),transparent 60%),
+    var(--bg);
+  background-attachment:fixed;
+}
+
+.helix-bg{position:fixed;top:0;bottom:0;width:150px;z-index:0;pointer-events:none;opacity:.55}
+.helix-bg svg{width:100%;height:100%;display:block}
+.helix-left{left:-34px}
+.helix-right{right:-34px;transform:scaleX(-1)}
+
+.page{width:min(100%,1040px);margin:auto;position:relative;z-index:2}
+
+.head{text-align:center;margin-bottom:26px}
+.kicker{display:inline-flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;font-weight:500;margin-bottom:14px}
+.kicker .bases{display:inline-flex;gap:3px}
+.kicker .bases i{width:7px;height:14px;border-radius:2px;display:block}
+.kicker .bases i:nth-child(1){background:var(--A)}
+.kicker .bases i:nth-child(2){background:var(--T)}
+.kicker .bases i:nth-child(3){background:var(--G)}
+.kicker .bases i:nth-child(4){background:var(--C)}
+h1{font-family:var(--serif);font-weight:700;font-size:clamp(30px,5.4vw,50px);line-height:1.1;letter-spacing:-.02em;margin:0}
+.subtitle{max-width:640px;margin:16px auto 20px;color:var(--muted);font-size:15px;line-height:1.7}
+.chips{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:6px 13px;border:1px solid var(--line);border-radius:8px;background:rgba(16,23,52,.7);font-size:12.5px;color:#c9d1f3}
+.chip:before{content:"";width:8px;height:8px;border-radius:2px;background:var(--c,var(--A))}
+.chip:nth-child(1){--c:var(--A)}.chip:nth-child(2){--c:var(--T)}.chip:nth-child(3){--c:var(--C)}
+
+/* карточка задания */
+.task-card{position:relative;overflow:hidden;width:100%;padding:34px 30px 30px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(160deg,rgba(21,30,66,.92),rgba(11,17,40,.92));box-shadow:0 20px 60px rgba(0,0,0,.35),inset 0 1px rgba(255,255,255,.04)}
+.task-card:before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,var(--A) 0 25%,var(--T) 25% 50%,var(--G) 50% 75%,var(--C) 75%)}
+
+/* два задания рядом */
+.tasks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:stretch}
+.task-card{display:flex;flex-direction:column;padding:30px 24px 26px}
+.task-card:nth-of-type(1){--c:var(--C)}.task-card:nth-of-type(2){--c:var(--T)}
+.task-title{display:flex;align-items:center;gap:12px;margin:0 0 20px;font-family:var(--serif);font-size:22px;font-weight:700}
+.task-title:before{content:"";width:6px;height:26px;border-radius:3px;background:var(--c)}
+
+.figure{margin:0 0 22px;text-align:center}
+.karyotype-img{display:block;width:100%;max-width:100%;height:auto;margin:0 auto;padding:12px;border-radius:14px;background:#fff;border:1px solid rgba(255,255,255,.25);box-shadow:0 0 0 6px rgba(160,176,255,.08),0 16px 36px rgba(0,0,0,.45)}
+
+.question-block{padding:20px 18px;margin-bottom:6px;border-radius:14px;border:1px solid var(--line);background:rgba(5,9,26,.45)}
+.select-grid{display:grid;grid-template-columns:1fr;gap:16px}
+.select-group{display:flex;flex-direction:column;gap:8px}
+.select-group label{font:600 14px var(--sans);color:#c9d1f3}
+select{width:100%;padding:12px 40px 12px 14px;border:1px solid rgba(160,176,255,.28);border-radius:10px;background-color:rgba(8,12,34,.8);color:var(--text);font:500 14px var(--sans);outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;transition:border-color .25s,box-shadow .25s,background-color .25s;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23c9d1f3' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 15px center}
+select option{background:#101734;color:var(--text)}
+select:focus{border-color:var(--C);box-shadow:0 0 0 3px rgba(74,168,255,.18)}
+select.correct{border-color:var(--A);background-color:rgba(61,220,151,.12);color:#d6ffee}
+select.wrong{border-color:var(--T);background-color:rgba(255,93,115,.12);color:#ffd9de}
+
+.controls{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:auto;padding-top:22px}
+button{font-family:var(--sans);font-weight:700;font-size:14px;padding:13px 26px;border-radius:11px;cursor:pointer;transition:transform .2s,box-shadow .2s,background .2s;border:none}
+button:focus-visible,.next-page-btn:focus-visible,select:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.btn-check{background:linear-gradient(100deg,var(--A),var(--C));color:#080c1c;box-shadow:0 10px 28px rgba(74,168,255,.2)}
+.btn-check:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(74,168,255,.32)}
+.btn-reset{background:rgba(160,176,255,.07);border:1px solid rgba(160,176,255,.3);color:#d5dbff}
+.btn-reset:hover{background:rgba(160,176,255,.16);transform:translateY(-2px)}
+.result{text-align:center;margin-top:18px;font:700 15px/1.4 var(--serif);min-height:22px;color:var(--A);transition:color .3s}
+
+.next-page-btn{display:flex;width:fit-content;max-width:100%;align-items:center;justify-content:center;gap:12px;margin:28px auto 0;padding:15px 26px;border-radius:12px;text-decoration:none;color:#080c1c;background:linear-gradient(100deg,var(--A),var(--C));font-size:14px;font-weight:700;box-shadow:0 10px 30px rgba(74,168,255,.2);transition:transform .2s,box-shadow .2s}
+.next-page-btn:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(74,168,255,.32)}
+
+@media(max-width:860px){.tasks{grid-template-columns:1fr}.helix-bg{opacity:.3;width:110px}}
+@media(max-width:600px){
+  body{padding:28px 12px}
+  .task-card{padding:22px 12px 20px}
+  .subtitle{font-size:14px}
+  .task-title{font-size:20px}
+  .controls button{flex:1 1 100%}
+  .next-page-btn{width:100%;text-align:center}
+}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<div class="helix-bg helix-left" id="helixL" aria-hidden="true"></div>
+<div class="helix-bg helix-right" id="helixR" aria-hidden="true"></div>
+
+<main class="page">
+    <header class="head">
+        <div class="kicker"><span class="bases" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Интерактивная биология</div>
+        <h1>Определение кариотипа</h1>
+        <p class="subtitle">Внимательно изучите предложенные схемы. Определите пол человека и запишите формулу его кариотипа.</p>
+        <div class="chips"><span class="chip">2 схемы</span><span class="chip">Пол и формула кариотипа</span></div>
+    </header>
+
+    <div class="tasks">
+    <div class="task-card">
+        <h2 class="task-title">Схема №1</h2>
+        <figure class="figure">
+            <img class="karyotype-img" src="images/кариотип1.png" alt="Кариотип №1" onerror="this.onerror=null;this.src='https://placehold.co/600x400/111827/55e6f2?text=Поместите+картинку+кариотипа+1+в+images/кариотип_м.png'">
+        </figure>
+
+        <div class="question-block">
+            <div class="select-grid">
+                <div class="select-group">
+                    <label for="genderSelect1">1. Пол человека:</label>
+                    <select id="genderSelect1">
+                        <option value="">-- Выберите пол --</option>
+                        <option value="Мужской">Мужской</option>
+                        <option value="Женский">Женский</option>
+                    </select>
+                </div>
+                <div class="select-group">
+                    <label for="karyotypeSelect1">2. Формула кариотипа:</label>
+                    <select id="karyotypeSelect1">
+                        <option value="">-- Выберите формулу --</option>
+                        <option value="46, XX">46, XX</option>
+                        <option value="46, XY">46, XY</option>
+                        <option value="47, XXY">47, XXY</option>
+                        <option value="45, X">45, X</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn-check" onclick="checkTask(1, 'Мужской', '46, XY')">✓ Проверить</button>
+            <button class="btn-reset" onclick="resetTask(1)">↺ Сбросить</button>
+        </div>
+        <div id="result1" class="result"></div>
+    </div>
+
+    <div class="task-card">
+        <h2 class="task-title">Схема №2</h2>
+        <figure class="figure">
+            <img class="karyotype-img" src="images/кариотип2.png" alt="Кариотип №2" onerror="this.onerror=null;this.src='https://placehold.co/600x400/111827/55e6f2?text=Поместите+картинку+кариотипа+2+в+images/кариотип_ж.png'">
+        </figure>
+
+        <div class="question-block">
+            <div class="select-grid">
+                <div class="select-group">
+                    <label for="genderSelect2">1. Пол человека:</label>
+                    <select id="genderSelect2">
+                        <option value="">-- Выберите пол --</option>
+                        <option value="Мужской">Мужской</option>
+                        <option value="Женский">Женский</option>
+                    </select>
+                </div>
+                <div class="select-group">
+                    <label for="karyotypeSelect2">2. Формула кариотипа:</label>
+                    <select id="karyotypeSelect2">
+                        <option value="">-- Выберите формулу --</option>
+                        <option value="46, XX">46, XX</option>
+                        <option value="46, XY">46, XY</option>
+                        <option value="47, XXY">47, XXY</option>
+                        <option value="45, X">45, X</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn-check" onclick="checkTask(2, 'Женский', '46, XX')">✓ Проверить</button>
+            <button class="btn-reset" onclick="resetTask(2)">↺ Сбросить</button>
+        </div>
+        <div id="result2" class="result"></div>
+    </div>
+    </div>
+
+    <a href="5.html" class="next-page-btn">Перейти к следующему заданию <i class="fas fa-arrow-right"></i></a>
+</main>
+
+<script>
+    // Функция проверки для конкретного задания
+    function checkTask(taskNum, correctGender, correctKaryotype) {
+        const genderSelect = document.getElementById(`genderSelect${taskNum}`);
+        const karyotypeSelect = document.getElementById(`karyotypeSelect${taskNum}`);
+        const resultDiv = document.getElementById(`result${taskNum}`);
+        
+        let correctCount = 0;
+        const totalCount = 2;
+
+        // Проверка пола
+        if (genderSelect.value === correctGender) {
+            genderSelect.classList.add('correct');
+            genderSelect.classList.remove('wrong');
+            correctCount++;
+        } else {
+            genderSelect.classList.add('wrong');
+            genderSelect.classList.remove('correct');
+        }
+
+        // Проверка формулы
+        if (karyotypeSelect.value === correctKaryotype) {
+            karyotypeSelect.classList.add('correct');
+            karyotypeSelect.classList.remove('wrong');
+            correctCount++;
+        } else {
+            karyotypeSelect.classList.add('wrong');
+            karyotypeSelect.classList.remove('correct');
+        }
+
+        // Вывод результата
+        if (correctCount === totalCount) {
+            resultDiv.textContent = '🎉 Отлично! Кариотип определен верно!';
+            resultDiv.style.color = 'var(--A)';
+        } else {
+            resultDiv.textContent = `Правильно: ${correctCount} из ${totalCount}. Проверьте выделенные поля.`;
+            resultDiv.style.color = 'var(--T)';
+        }
+    }
+
+    // Функция сброса для конкретного задания
+    function resetTask(taskNum) {
+        const genderSelect = document.getElementById(`genderSelect${taskNum}`);
+        const karyotypeSelect = document.getElementById(`karyotypeSelect${taskNum}`);
+        const resultDiv = document.getElementById(`result${taskNum}`);
+        
+        genderSelect.value = '';
+        karyotypeSelect.value = '';
+        
+        genderSelect.classList.remove('correct', 'wrong');
+        karyotypeSelect.classList.remove('correct', 'wrong');
+        
+        resultDiv.textContent = '';
+    }
+</script>
+
+<script>
+/* оформление: двойные спирали по краям */
+(function(){
+  const BASES=['A','T','G','C'],COL={A:'#3ddc97',T:'#ff5d73',G:'#ffc53d',C:'#4aa8ff'},PAIR={A:'T',T:'A',G:'C',C:'G'};
+  let s=21;const rnd=()=>((s=(s*1664525+1013904223)>>>0)/4294967296);
+  const W=120,H=1000,cx=60,amp=38,period=260,n=130;
+  let a='',b='',r='';
+  for(let i=0;i<=n;i++){const y=i/n*H,ph=y/period*Math.PI*2;a+=(i?'L':'M')+(cx+amp*Math.sin(ph)).toFixed(1)+' '+y.toFixed(1);b+=(i?'L':'M')+(cx-amp*Math.sin(ph)).toFixed(1)+' '+y.toFixed(1)}
+  for(let y=10;y<H;y+=15){const ph=y/period*Math.PI*2,sn=Math.sin(ph),x1=cx+amp*sn,x2=cx-amp*sn,bs=BASES[Math.floor(rnd()*4)],pb=PAIR[bs],o=(.25+.6*Math.abs(Math.cos(ph))).toFixed(2);
+    r+=`<line x1="${x1.toFixed(1)}" y1="${y}" x2="${cx}" y2="${y}" stroke="${COL[bs]}" stroke-width="3" stroke-linecap="round" opacity="${o}"/><line x1="${cx}" y1="${y}" x2="${x2.toFixed(1)}" y2="${y}" stroke="${COL[pb]}" stroke-width="3" stroke-linecap="round" opacity="${o}"/>`}
+  const svg=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice">${r}<path d="${a}" fill="none" stroke="rgba(214,222,255,.5)" stroke-width="2.2"/><path d="${b}" fill="none" stroke="rgba(214,222,255,.25)" stroke-width="2.2"/></svg>`;
+  document.getElementById('helixL').innerHTML=svg;document.getElementById('helixR').innerHTML=svg;
+})();
+</script>
+</body>
+</html>

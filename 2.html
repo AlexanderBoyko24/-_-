@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Задание: Подпишите органеллы клетки</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,500;0,7..72,700;1,7..72,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080c1c;
+  --text:#eef1ff;
+  --muted:#98a2c8;
+  --line:rgba(160,176,255,.16);
+  --A:#3ddc97;
+  --T:#ff5d73;
+  --G:#ffc53d;
+  --C:#4aa8ff;
+  --serif:'Literata',Georgia,'Times New Roman',serif;
+  --sans:'Golos Text',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{
+  margin:0;min-height:100vh;padding:40px 18px 34px;color:var(--text);
+  font-family:var(--sans);overflow-x:hidden;position:relative;
+  background:
+    radial-gradient(900px 520px at 12% -8%,rgba(74,168,255,.13),transparent 60%),
+    radial-gradient(800px 520px at 100% 105%,rgba(255,93,115,.10),transparent 60%),
+    var(--bg);
+  background-attachment:fixed;
+}
+
+.helix-bg{position:fixed;top:0;bottom:0;width:150px;z-index:0;pointer-events:none;opacity:.55}
+.helix-bg svg{width:100%;height:100%;display:block}
+.helix-left{left:-34px}
+.helix-right{right:-34px;transform:scaleX(-1)}
+
+.page{width:min(100%,960px);margin:auto;position:relative;z-index:2}
+
+.head{text-align:center;margin-bottom:26px}
+.kicker{display:inline-flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;font-weight:500;margin-bottom:14px}
+.kicker .bases{display:inline-flex;gap:3px}
+.kicker .bases i{width:7px;height:14px;border-radius:2px;display:block}
+.kicker .bases i:nth-child(1){background:var(--A)}
+.kicker .bases i:nth-child(2){background:var(--T)}
+.kicker .bases i:nth-child(3){background:var(--G)}
+.kicker .bases i:nth-child(4){background:var(--C)}
+h1{font-family:var(--serif);font-weight:700;font-size:clamp(30px,5.4vw,50px);line-height:1.1;letter-spacing:-.02em;margin:0}
+.subtitle{max-width:640px;margin:16px auto 20px;color:var(--muted);font-size:15px;line-height:1.7}
+.chips{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:6px 13px;border:1px solid var(--line);border-radius:8px;background:rgba(16,23,52,.7);font-size:12.5px;color:#c9d1f3}
+.chip:before{content:"";width:8px;height:8px;border-radius:2px;background:var(--c,var(--A))}
+.chip:nth-child(1){--c:var(--A)}.chip:nth-child(2){--c:var(--G)}
+
+/* карточка задания */
+.task-card{position:relative;overflow:hidden;width:100%;padding:34px 30px 30px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(160deg,rgba(21,30,66,.92),rgba(11,17,40,.92));box-shadow:0 20px 60px rgba(0,0,0,.35),inset 0 1px rgba(255,255,255,.04)}
+.task-card:before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,var(--A) 0 25%,var(--T) 25% 50%,var(--G) 50% 75%,var(--C) 75%)}
+
+/* схема: без рамки и без белого фона, картинка лежит прямо на карточке */
+.diagram{position:relative;width:100%;max-width:700px;margin:0 auto}
+.cell-image{display:block;width:100%;height:auto;background:transparent;border:0;border-radius:0;box-shadow:none;user-select:none;-webkit-user-drag:none}
+
+.marker{position:absolute;left:var(--x);top:var(--y);transform:translate(-50%,-50%);width:38px;height:38px;border:2px solid #c9d1f3;border-radius:50%;background:radial-gradient(circle at 35% 28%,#1d2756,#0c1230);color:var(--text);display:flex;align-items:center;justify-content:center;font:700 14px/1 var(--serif);box-shadow:0 0 0 3px rgba(8,12,28,.85);transition:border-color .2s,background .2s,box-shadow .2s,transform .2s;z-index:2;cursor:pointer}
+.marker:hover{border-color:var(--G)}
+.marker.over{border-color:var(--G);background:rgba(255,197,61,.22);box-shadow:0 0 0 3px rgba(8,12,28,.85),0 0 20px rgba(255,197,61,.6);transform:translate(-50%,-50%) scale(1.12)}
+.marker.correct{border-color:var(--A);background:rgba(61,220,151,.18);color:var(--A);box-shadow:0 0 0 3px rgba(8,12,28,.85),0 0 18px rgba(61,220,151,.5)}
+.marker.wrong{border-color:var(--T);background:rgba(255,93,115,.18);color:var(--T);box-shadow:0 0 0 3px rgba(8,12,28,.85),0 0 18px rgba(255,93,115,.5)}
+
+.placed-label{position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);padding:4px 10px;border-radius:6px;background:#0b1128;color:var(--text);border:1px solid rgba(160,176,255,.4);box-shadow:0 6px 14px rgba(0,0,0,.6);font:600 12px var(--sans);white-space:nowrap;z-index:5}
+.marker.correct .placed-label{border-color:var(--A)}
+.marker.wrong .placed-label{border-color:var(--T)}
+
+/* варианты ответов */
+.options-title{margin:34px 0 12px;text-align:center;color:var(--muted);font-size:13px}
+.options{display:flex;flex-wrap:wrap;justify-content:center;gap:9px;margin:0 auto;max-width:780px}
+.option{padding:10px 16px;border:1px solid rgba(160,176,255,.28);border-left:4px solid var(--c,var(--C));border-radius:8px;background:rgba(160,176,255,.07);color:#dfe5ff;cursor:grab;user-select:none;font:600 14px var(--sans);transition:background .2s,transform .2s,border-color .2s,box-shadow .2s}
+.option:nth-child(4n+1){--c:var(--A)}.option:nth-child(4n+2){--c:var(--T)}.option:nth-child(4n+3){--c:var(--G)}.option:nth-child(4n+4){--c:var(--C)}
+.option:hover{background:rgba(160,176,255,.16);transform:translateY(-2px)}
+.option.selected{background:rgba(255,197,61,.16);border-color:var(--G);border-left-color:var(--G);color:#fff;box-shadow:0 0 18px rgba(255,197,61,.28)}
+.option.used{opacity:.22;pointer-events:none;filter:grayscale(1)}
+
+/* кнопки */
+.controls{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:30px}
+button{font-family:var(--sans);font-weight:700;font-size:14px;padding:13px 28px;border-radius:11px;cursor:pointer;transition:transform .2s,box-shadow .2s,background .2s;border:none}
+button:focus-visible,.option:focus-visible,.marker:focus-visible,.next-page-btn:focus-visible{outline:2px solid #fff;outline-offset:3px}
+#check{background:linear-gradient(100deg,var(--A),var(--C));color:#080c1c;box-shadow:0 10px 28px rgba(74,168,255,.2)}
+#check:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(74,168,255,.32)}
+#reset{background:rgba(160,176,255,.07);border:1px solid rgba(160,176,255,.3);color:#d5dbff}
+#reset:hover{background:rgba(160,176,255,.16);transform:translateY(-2px)}
+
+#result{text-align:center;margin-top:22px;font:700 16px var(--serif);min-height:24px;color:var(--A);transition:color .3s}
+
+.next-page-btn{display:flex;width:fit-content;max-width:100%;align-items:center;justify-content:center;gap:12px;margin:28px auto 0;padding:15px 26px;border-radius:12px;text-decoration:none;color:#080c1c;background:linear-gradient(100deg,var(--A),var(--C));font-size:14px;font-weight:700;box-shadow:0 10px 30px rgba(74,168,255,.2);transition:transform .2s,box-shadow .2s}
+.next-page-btn:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(74,168,255,.32)}
+
+@media(max-width:820px){.helix-bg{opacity:.3;width:110px}}
+@media(max-width:600px){
+  body{padding:28px 12px}
+  .task-card{padding:24px 12px 22px}
+  .subtitle{font-size:14px}
+  .marker{width:30px;height:30px;font-size:12px}
+  .placed-label{font-size:10px;padding:2px 6px}
+  .option{padding:8px 12px;font-size:13px}
+  button{padding:12px 20px;font-size:13px}
+  .next-page-btn{width:100%;text-align:center}
+}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<div class="helix-bg helix-left" id="helixL" aria-hidden="true"></div>
+<div class="helix-bg helix-right" id="helixR" aria-hidden="true"></div>
+
+<main class="page">
+  <header class="head">
+    <div class="kicker"><span class="bases" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Интерактивная генетика</div>
+    <h1>Определите органеллы клетки</h1>
+    <p class="subtitle">Перетащите правильные названия из списка ниже на соответствующие цифры на схеме, или нажмите на название, а затем на цифру.</p>
+    <div class="chips"><span class="chip">14 органелл</span><span class="chip">Перетаскивание или клик</span></div>
+  </header>
+
+  <div class="task-card">
+    <div class="diagram" id="diagram">
+      <!-- Укажите правильный путь к картинке -->
+      <img class="cell-image" src="images/клетка.png" alt="Схема животной клетки" draggable="false" onerror="this.src='https://placehold.co/600x400/111827/55e6f2?text=Поместите+схему+клетки+в+images/клетка.png'">
+    </div>
+
+    <p class="options-title">Названия органелл</p>
+    <div class="options" id="options"></div>
+
+    <div class="controls">
+      <button id="check">✓ Проверить</button>
+      <button id="reset">↺ Сбросить</button>
+    </div>
+
+    <div id="result" aria-live="polite"></div>
+  </div>
+
+  <a href="3.html" class="next-page-btn">Перейти к следующему заданию <i class="fas fa-arrow-right"></i></a>
+</main>
+
+<script>
+    const task = {
+        markers: [
+          
+            { id: 'm1', x: 53, y: 17, answer: 'Цитоплазма' },
+            { id: 'm2', x: 90, y: 50, answer: 'Аппарат Гольджи' },
+            { id: 'm3', x: 29, y: 4, answer: 'Митохондрии' },
+            { id: 'm4', x: 13, y: 23, answer: 'Эндоплазматический ретикулум' },
+            { id: 'm5', x: 13, y: 42, answer: 'Рибосомы' },
+           
+            { id: 'm6', x: 84, y: 15, answer: 'Ядрышко' },
+            { id: 'm7', x: 69, y: 4, answer: 'Хроматин' },
+          
+            { id: 'm8', x: 89, y: 27, answer: 'Ядерная мембрана' },
+            { id: 'm9', x: 13, y: 59, answer: 'Центриоли' },
+            { id: 'm10', x: 82, y: 85, answer: 'Клеточная мембрана' },
+            { id: 'm11', x: 36, y: 90, answer: 'Лизосома' },
+            { id: 'm12', x: 20, y: 81, answer: 'Цитоскелет' }
+          
+        ],
+        options: [
+             'Цитоплазма', 'Аппарат Гольджи', 'Митохондрии',
+            'Эндоплазматический ретикулум', 'Рибосомы',  'Ядрышко',
+            'Хроматин',  'Ядерная мембрана', 'Цитоскелет', 'Центриоли', 'Клеточная мембрана', 'Лизосома'
+        ]
+    };
+
+    const diagram = document.getElementById('diagram');
+    const optionsBox = document.getElementById('options');
+    const result = document.getElementById('result');
+    const shuffled = [...task.options].sort(() => Math.random() - 0.5);
+    const markers = new Map();
+    const optionEls = new Map();
+    let selectedOption = null;
+
+    // Создаем маркеры
+    task.markers.forEach((item, index) => {
+        const marker = document.createElement('div');
+        marker.className = 'marker';
+        marker.style.setProperty('--x', item.x + '%');
+        marker.style.setProperty('--y', item.y + '%');
+        marker.textContent = index + 1;
+        marker.dataset.answer = item.answer;
+        marker.dataset.id = item.id;
+
+        // Drag & Drop
+        marker.addEventListener('dragover', e => { e.preventDefault(); marker.classList.add('over'); });
+        marker.addEventListener('dragleave', () => marker.classList.remove('over'));
+        marker.addEventListener('drop', e => {
+            e.preventDefault(); 
+            marker.classList.remove('over');
+            placeWord(marker, e.dataTransfer.getData('text/plain'));
+        });
+
+        // Клик (для мобильных устройств или выбора)
+        marker.addEventListener('click', () => {
+            if (selectedOption) {
+                placeWord(marker, selectedOption.dataset.word);
+                selectedOption.classList.remove('selected');
+                selectedOption = null;
+            }
+        });
+
+        diagram.appendChild(marker);
+        markers.set(item.id, marker);
+    });
+
+    // Создаем варианты ответов
+    shuffled.forEach(word => {
+        const option = document.createElement('div');
+        option.className = 'option';
+        option.textContent = word;
+        option.draggable = true;
+        option.dataset.word = word;
+
+        option.addEventListener('dragstart', e => {
+            e.dataTransfer.setData('text/plain', word);
+        });
+
+        option.addEventListener('click', () => {
+            if (selectedOption) selectedOption.classList.remove('selected');
+            selectedOption = selectedOption === option ? null : option;
+            if (selectedOption) selectedOption.classList.add('selected');
+        });
+
+        optionsBox.appendChild(option);
+        optionEls.set(word, option);
+    });
+
+    // Логика размещения слова
+    function placeWord(marker, word) {
+        if (!word || !optionEls.has(word)) return;
+        const option = optionEls.get(word);
+        const oldLabel = marker.querySelector('.placed-label');
+        
+        if (oldLabel) {
+            optionEls.get(oldLabel.dataset.word)?.classList.remove('used');
+        }
+
+        // Удаляем это слово из других маркеров, если оно там было
+        markers.forEach(other => {
+            const label = other.querySelector('.placed-label');
+            if (label && label.dataset.word === word) {
+                label.remove();
+                other.classList.remove('correct', 'wrong');
+            }
+        });
+
+        marker.querySelector('.placed-label')?.remove();
+
+        // Создаем новую подпись
+        const label = document.createElement('span');
+        label.className = 'placed-label';
+        label.dataset.word = word;
+        label.textContent = word;
+        marker.appendChild(label);
+
+        option.classList.add('used');
+        marker.classList.remove('correct', 'wrong');
+        result.textContent = '';
+    }
+
+    // Кнопка "Проверить"
+    document.getElementById('check').addEventListener('click', () => {
+        let correct = 0;
+        let filled = 0;
+
+        markers.forEach(marker => {
+            marker.classList.remove('correct', 'wrong');
+            const label = marker.querySelector('.placed-label');
+            if (!label) return;
+            
+            filled++;
+            if (label.dataset.word === marker.dataset.answer) {
+                marker.classList.add('correct');
+                correct++;
+            } else {
+                marker.classList.add('wrong');
+            }
+        });
+
+        if (filled === markers.size && correct === markers.size) {
+            result.textContent = '🎉 Отлично! Все органеллы подписаны верно!';
+            result.style.color = 'var(--A)';
+        } else {
+            result.textContent = `Правильно: ${correct} из ${markers.size}. Заполнено: ${filled} из ${markers.size}.`;
+            result.style.color = 'var(--T)';
+        }
+    });
+
+    // Кнопка "Сбросить"
+    document.getElementById('reset').addEventListener('click', () => {
+        markers.forEach(marker => {
+            const label = marker.querySelector('.placed-label');
+            if (label) optionEls.get(label.dataset.word)?.classList.remove('used');
+            label?.remove();
+            marker.classList.remove('correct', 'wrong', 'over');
+        });
+
+        if (selectedOption) selectedOption.classList.remove('selected');
+        selectedOption = null;
+        result.textContent = '';
+    });
+</script>
+
+<script>
+/* оформление: двойные спирали по краям */
+(function(){
+  const BASES=['A','T','G','C'],COL={A:'#3ddc97',T:'#ff5d73',G:'#ffc53d',C:'#4aa8ff'},PAIR={A:'T',T:'A',G:'C',C:'G'};
+  let s=21;const rnd=()=>((s=(s*1664525+1013904223)>>>0)/4294967296);
+  const W=120,H=1000,cx=60,amp=38,period=260,n=130;
+  let a='',b='',r='';
+  for(let i=0;i<=n;i++){const y=i/n*H,ph=y/period*Math.PI*2;a+=(i?'L':'M')+(cx+amp*Math.sin(ph)).toFixed(1)+' '+y.toFixed(1);b+=(i?'L':'M')+(cx-amp*Math.sin(ph)).toFixed(1)+' '+y.toFixed(1)}
+  for(let y=10;y<H;y+=15){const ph=y/period*Math.PI*2,sn=Math.sin(ph),x1=cx+amp*sn,x2=cx-amp*sn,bs=BASES[Math.floor(rnd()*4)],pb=PAIR[bs],o=(.25+.6*Math.abs(Math.cos(ph))).toFixed(2);
+    r+=`<line x1="${x1.toFixed(1)}" y1="${y}" x2="${cx}" y2="${y}" stroke="${COL[bs]}" stroke-width="3" stroke-linecap="round" opacity="${o}"/><line x1="${cx}" y1="${y}" x2="${x2.toFixed(1)}" y2="${y}" stroke="${COL[pb]}" stroke-width="3" stroke-linecap="round" opacity="${o}"/>`}
+  const svg=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice">${r}<path d="${a}" fill="none" stroke="rgba(214,222,255,.5)" stroke-width="2.2"/><path d="${b}" fill="none" stroke="rgba(214,222,255,.25)" stroke-width="2.2"/></svg>`;
+  document.getElementById('helixL').innerHTML=svg;document.getElementById('helixR').innerHTML=svg;
+})();
+</script>
+</body>
+</html>
